@@ -33,6 +33,9 @@ func ScanQRCode(w http.ResponseWriter, r *http.Request) {
 	// Check if the student has already taken the meal for the day
 	var meal models.Meal
 	today := time.Now().Format("2006-01-02")
+	loc, _ := time.LoadLocation("Asia/Kolkata")
+	time := time.Now().In(loc).Format("15:04")
+
 	err = database.DB.QueryRow("SELECT id FROM meals WHERE student_id = ? AND meal_type = ? AND date = ?", req.StudentID, req.MealType, today).Scan(&meal.ID)
 	if err == nil {
 		http.Error(w, "Meal already taken", http.StatusForbidden)
@@ -43,9 +46,9 @@ func ScanQRCode(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Allow the meal
-	_, err = database.DB.Exec("INSERT INTO meals (student_id, meal_type, date) VALUES (?, ?, ?)", req.StudentID, req.MealType, today)
+	_, err = database.DB.Exec("INSERT INTO meals (student_id, meal_type, date, time) VALUES (?, ?, ?, ?)", req.StudentID, req.MealType, today, time)
 	if err != nil {
-		http.Error(w, "Failed to record meal", http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
