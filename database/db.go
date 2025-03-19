@@ -8,7 +8,7 @@ import (
 
 var DB *sql.DB
 
-func InitDB(connectionsString string) error {
+func OpenDB(connectionsString string) error {
 	var err error
 	DB, err = sql.Open("mysql", connectionsString)
 	if err != nil {

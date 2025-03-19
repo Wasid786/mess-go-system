@@ -10,12 +10,14 @@ import (
 )
 
 func ScanQRCode(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
 	var req struct {
 		StudentID string `json:"student_id"`
-		MealType  string `json:"meal_type"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request", http.StatusBadRequest)
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid Request Format"})
 		return
 	}
 
@@ -23,35 +25,58 @@ func ScanQRCode(w http.ResponseWriter, r *http.Request) {
 	var student models.Student
 	err := database.DB.QueryRow("SELECT id, name, hostel_id FROM students WHERE student_id = ?", req.StudentID).Scan(&student.ID, &student.Name, &student.HostelID)
 	if err == sql.ErrNoRows {
-		http.Error(w, "Student not found", http.StatusNotFound)
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Student Not Found"})
 		return
 	} else if err != nil {
-		http.Error(w, "Database error", http.StatusInternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Dataabase error"})
+		return
+	}
+
+	// Determine meal type based on time
+	loc, _ := time.LoadLocation("Asia/Kolkata")
+	currentTime := time.Now().In(loc)
+	hour, min := currentTime.Hour(), currentTime.Minute()
+
+	var mealType string
+	switch {
+	case hour >= 6 && (hour < 11 || (hour == 11 && min == 0)):
+		mealType = "Breakfast"
+	case (hour == 11 && min >= 5) || hour < 18:
+		mealType = "Lunch"
+	case (hour == 18 && min >= 5) || hour < 23:
+		mealType = "Dinner"
+	default:
+		w.WriteHeader(http.StatusForbidden)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Meal Time Not Allowed"})
 		return
 	}
 
 	// Check if the student has already taken the meal for the day
 	var meal models.Meal
-	today := time.Now().Format("2006-01-02")
-	loc, _ := time.LoadLocation("Asia/Kolkata")
-	time := time.Now().In(loc).Format("15:04")
+	today := currentTime.Format("2006-01-02")
 
-	err = database.DB.QueryRow("SELECT id FROM meals WHERE student_id = ? AND meal_type = ? AND date = ?", req.StudentID, req.MealType, today).Scan(&meal.ID)
+	err = database.DB.QueryRow("SELECT id FROM meals WHERE student_id = ? AND meal_type = ? AND date = ?", req.StudentID, mealType, today).Scan(&meal.ID)
 	if err == nil {
-		http.Error(w, "Meal already taken", http.StatusForbidden)
+		w.WriteHeader(http.StatusForbidden)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Meal Already Taken"})
 		return
 	} else if err != sql.ErrNoRows {
-		http.Error(w, "Database error", http.StatusInternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Database Error"})
+
 		return
 	}
 
 	// Allow the meal
-	_, err = database.DB.Exec("INSERT INTO meals (student_id, meal_type, date, time) VALUES (?, ?, ?, ?)", req.StudentID, req.MealType, today, time)
+	_, err = database.DB.Exec("INSERT INTO meals (student_id, meal_type, date, time) VALUES (?, ?, ?, ?)", req.StudentID, mealType, today, currentTime.Format("15:04"))
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"message": "Meal allowed"})
+	json.NewEncoder(w).Encode(map[string]string{"message": "Meal allowed", "meal_type": mealType})
 }
