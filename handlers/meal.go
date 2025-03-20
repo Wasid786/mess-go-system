@@ -51,7 +51,7 @@ func ScanQRCode(w http.ResponseWriter, r *http.Request) {
 		mealType = "Dinner"
 	default:
 		w.WriteHeader(http.StatusForbidden)
-		json.NewEncoder(w).Encode(map[string]string{"error": "This is not a Meal Time"})
+		json.NewEncoder(w).Encode(map[string]string{"error": "This is not meal time!"})
 		return
 	}
 
