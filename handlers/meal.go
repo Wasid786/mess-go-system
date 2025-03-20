@@ -39,19 +39,19 @@ func ScanQRCode(w http.ResponseWriter, r *http.Request) {
 	// Determine meal type based on time
 	loc, _ := time.LoadLocation("Asia/Kolkata")
 	currentTime := time.Now().In(loc)
-	hour, min := currentTime.Hour(), currentTime.Minute()
+	hour := currentTime.Hour()
 
 	var mealType string
 	switch {
-	case hour >= 6 && (hour < 11 || (hour == 11 && min == 0)):
+	case (hour >= 6 && hour < 11):
 		mealType = "Breakfast"
-	case (hour == 11 && min >= 5) || hour < 18:
+	case (hour >= 11 && hour < 18):
 		mealType = "Lunch"
-	case (hour == 18 && min >= 5) || hour < 23:
+	case (hour >= 18 && hour < 23):
 		mealType = "Dinner"
 	default:
 		w.WriteHeader(http.StatusForbidden)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Meal Time Not Allowed"})
+		json.NewEncoder(w).Encode(map[string]string{"error": "This is not a Meal Time"})
 		return
 	}
 
@@ -83,22 +83,27 @@ func ScanQRCode(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"message": "Meal allowed", "meal_type": mealType})
 }
 
+func HomePage(w http.ResponseWriter, r *http.Request) {
+	RenderTemplate(w, "home.tmpl")
+}
+
+// Scanner page handler
+func ScannerPage(w http.ResponseWriter, r *http.Request) {
+	RenderTemplate(w, "scanner.tmpl")
+}
+
+// RenderTemplate function
 func RenderTemplate(w http.ResponseWriter, tmplName string) {
-	// Define a slice of template files
-	templates := []string{
+	tmpl, err := template.ParseFiles(
 		"templates/home.tmpl",
 		"templates/scanner.tmpl",
-	}
-
-	// Parse all templates
-	tmpl, err := template.ParseFiles(templates...)
+	)
 	if err != nil {
 		http.Error(w, "Error loading template", http.StatusInternalServerError)
 		fmt.Println("Template parsing error:", err)
 		return
 	}
 
-	// Execute the requested template
 	err = tmpl.ExecuteTemplate(w, tmplName, nil)
 	if err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)

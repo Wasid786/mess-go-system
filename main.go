@@ -18,12 +18,8 @@ func main() {
 		return
 	}
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		handlers.RenderTemplate(w, "home.tmpl")
-	})
-	http.HandleFunc("/scanner", func(w http.ResponseWriter, r *http.Request) {
-		handlers.RenderTemplate(w, "scanner.tmpl")
-	})
+	http.HandleFunc("/", handlers.HomePage)
+	http.HandleFunc("/scanner", handlers.ScannerPage)
 
 	// Backend Route
 	http.HandleFunc("/scan", handlers.ScanQRCode)
