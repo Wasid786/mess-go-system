@@ -19,7 +19,7 @@ function onScanSuccess(qrCodeMessage) {
         return;
     }
 
-    fetch('http://localhost:8080/scan', {
+    fetch('http://localhost:8080/scanner', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ student_id: student_id })

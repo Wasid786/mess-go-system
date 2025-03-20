@@ -3,6 +3,8 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
+	"html/template"
 	"messGo/database"
 	"messGo/models"
 	"net/http"
@@ -79,4 +81,27 @@ func ScanQRCode(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"message": "Meal allowed", "meal_type": mealType})
+}
+
+func RenderTemplate(w http.ResponseWriter, tmplName string) {
+	// Define a slice of template files
+	templates := []string{
+		"templates/home.tmpl",
+		"templates/scanner.tmpl",
+	}
+
+	// Parse all templates
+	tmpl, err := template.ParseFiles(templates...)
+	if err != nil {
+		http.Error(w, "Error loading template", http.StatusInternalServerError)
+		fmt.Println("Template parsing error:", err)
+		return
+	}
+
+	// Execute the requested template
+	err = tmpl.ExecuteTemplate(w, tmplName, nil)
+	if err != nil {
+		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+		fmt.Println("Template execution error:", err)
+	}
 }

@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"html/template"
 	"messGo/database"
 	"messGo/handlers"
 
@@ -13,25 +12,20 @@ func main() {
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
-	// Initialize database
 	err := database.OpenDB("new_user:localhost@/mess?parseTime=true")
 	if err != nil {
 		fmt.Println("Failed to connect to database:", err)
 		return
 	}
 
-	// server the page
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		tmpl, err := template.ParseFiles("templates/scan.tmpl")
-		if err != nil {
-			http.Error(w, "Error loading template", http.StatusInternalServerError)
-			return
-
-		}
-		tmpl.Execute(w, nil)
+		handlers.RenderTemplate(w, "home.tmpl")
+	})
+	http.HandleFunc("/scanner", func(w http.ResponseWriter, r *http.Request) {
+		handlers.RenderTemplate(w, "scanner.tmpl")
 	})
 
-	// Define routes
+	// Backend Route
 	http.HandleFunc("/scan", handlers.ScanQRCode)
 
 	// Start server
