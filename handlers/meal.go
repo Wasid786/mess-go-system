@@ -15,7 +15,7 @@ func ScanQRCode(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	var req struct {
-		StudentID string `json:"student_id"`
+		CourseID string `json:"course_id"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -25,7 +25,7 @@ func ScanQRCode(w http.ResponseWriter, r *http.Request) {
 
 	// Check if the student exists
 	var student models.Student
-	err := database.DB.QueryRow("SELECT id, name, hostel FROM students WHERE student_id = ?", req.StudentID).Scan(&student.ID, &student.Name, &student.Hostel)
+	err := database.DB.QueryRow("SELECT id, name, hostel, course_id, enroll_no, registered_session, mess_slip FROM students WHERE course_id = ?", req.CourseID).Scan(&student.ID, &student.Name, &student.Hostel, &student.CourseID, &student.EnrollNo, &student.RegisteredSession, &student.MessSlip)
 	if err == sql.ErrNoRows {
 		w.WriteHeader(http.StatusNotFound)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Student Not Found"})
@@ -59,7 +59,7 @@ func ScanQRCode(w http.ResponseWriter, r *http.Request) {
 	var meal models.Meal
 	today := currentTime.Format("2006-01-02")
 
-	err = database.DB.QueryRow("SELECT id FROM meals WHERE student_id = ? AND meal_type = ? AND date = ?", req.StudentID, mealType, today).Scan(&meal.ID)
+	err = database.DB.QueryRow("SELECT id FROM meals WHERE course_id = ? AND meal_type = ? AND date = ?", req.CourseID, mealType, today).Scan(&meal.ID)
 	if err == nil {
 		w.WriteHeader(http.StatusForbidden)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Meal Already Taken"})
@@ -72,7 +72,7 @@ func ScanQRCode(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Allow the meal
-	_, err = database.DB.Exec("INSERT INTO meals (student_id, meal_type, date, time) VALUES (?, ?, ?, ?)", req.StudentID, mealType, today, currentTime.Format("15:04"))
+	_, err = database.DB.Exec("INSERT INTO meals (course_id, meal_type, date, time) VALUES (?, ?, ?, ?)", req.CourseID, mealType, today, currentTime.Format("15:04"))
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
