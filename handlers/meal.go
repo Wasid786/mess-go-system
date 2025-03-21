@@ -25,7 +25,7 @@ func ScanQRCode(w http.ResponseWriter, r *http.Request) {
 
 	// Check if the student exists
 	var student models.Student
-	err := database.DB.QueryRow("SELECT id, name, hostel_id FROM students WHERE student_id = ?", req.StudentID).Scan(&student.ID, &student.Name, &student.HostelID)
+	err := database.DB.QueryRow("SELECT id, name, hostel FROM students WHERE student_id = ?", req.StudentID).Scan(&student.ID, &student.Name, &student.Hostel)
 	if err == sql.ErrNoRows {
 		w.WriteHeader(http.StatusNotFound)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Student Not Found"})

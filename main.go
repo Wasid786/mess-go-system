@@ -21,8 +21,9 @@ func main() {
 	http.HandleFunc("/", handlers.HomePage)
 	http.HandleFunc("/scanner", handlers.ScannerPage)
 
-	// Backend Route
+	// Post Route
 	http.HandleFunc("/scan", handlers.ScanQRCode)
+	http.HandleFunc("/students", handlers.CreateStudent)
 
 	// Start server
 	fmt.Println("Server started at :8080")
