@@ -1,0 +1,100 @@
+/* Base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+    line-height: 1.6;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #2c3e50;
+    font-size: 2rem;
+  }
+  
+  /* Table styles */
+  .table-container {
+    overflow-x: auto;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .students-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.9rem;
+  }
+  
+  .students-table th {
+    background-color: #3498db;
+    color: white;
+    padding: 12px 15px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+  }
+  
+  .students-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .students-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  .students-table tbody tr:hover {
+    background-color: #f1f1f1;
+  }
+  
+  /* Status indicators */
+  .status {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  
+  .status.issued {
+    background-color: #e6f7ee;
+    color: #2ecc71;
+  }
+  
+  .status.not-issued {
+    background-color: #feeaea;
+    color: #e74c3c;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .students-table {
+      font-size: 0.8rem;
+    }
+  
+    .students-table th,
+    .students-table td {
+      padding: 8px 10px;
+    }
+  
+    h1 {
+      font-size: 1.5rem;
+    }
+  }
+  
+  

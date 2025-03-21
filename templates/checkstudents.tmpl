@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Students Information</title>
+   <link rel="stylesheet" href="/static/checkstudents.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Students Information</h1>
+    
+    <div class="table-container">
+      <table class="students-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Enroll No</th>
+            <th>Name</th>
+            <th>Hostel</th>
+            <th>Course ID</th>
+            <th>Registered Session</th>
+            <th>Mess Slip</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{range .Student}}
+          <tr>
+            <td>{{.ID}}</td>
+            <td>{{.EnrollNo}}</td>
+            <td>{{.Name}}</td>
+            <td>{{.Hostel}}</td>
+            <td>{{.CourseID}}</td>
+            <td>{{.RegisteredSession}}</td>
+            <td>
+              <span class="status {{if .MessSlip}}issued{{else}}not-issued{{end}}">
+                {{if .MessSlip}}Issued{{else}}Not Issued{{end}}
+              </span>
+            </td>
+          </tr>
+          {{end}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>
+

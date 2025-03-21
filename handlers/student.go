@@ -34,3 +34,40 @@ func CreateStudent(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"message": "Student Created Successfully!"})
 
 }
+
+func GetStudents(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+	RenderTemplate(w, "checkstudents.tmpl")
+
+	w.Header().Set("Content-Type", "application/json")
+
+	rows, err := database.DB.Query("SELECT * FROM students")
+	if err != nil {
+		http.Error(w, `{"error": "Failed to fetch students"}`, http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var students []models.Student
+
+	for rows.Next() {
+		var student models.Student
+		if err := rows.Scan(&student.ID, &student.EnrollNo, &student.Name, &student.Hostel, &student.CourseID, &student.RegisteredSession, &student.MessSlip); err != nil {
+			http.Error(w, `{"error": "Failed to parse student data"}`, http.StatusInternalServerError)
+			return
+		}
+		students = append(students, student)
+	}
+
+	// If no students found, return an empty list
+	if len(students) == 0 {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode([]models.Student{})
+		return
+	}
+
+	json.NewEncoder(w).Encode(students)
+}
