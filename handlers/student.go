@@ -40,9 +40,6 @@ func GetStudents(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
 	}
-	RenderTemplate(w, "checkstudents.tmpl")
-
-	w.Header().Set("Content-Type", "application/json")
 
 	rows, err := database.DB.Query("SELECT * FROM students")
 	if err != nil {
@@ -62,12 +59,10 @@ func GetStudents(w http.ResponseWriter, r *http.Request) {
 		students = append(students, student)
 	}
 
-	// If no students found, return an empty list
-	if len(students) == 0 {
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode([]models.Student{})
-		return
+	data := map[string]interface{}{
+		"Student": students,
 	}
 
-	json.NewEncoder(w).Encode(students)
+	// Render the template with data
+	RenderTemplate(w, "checkstudents.tmpl", data)
 }
