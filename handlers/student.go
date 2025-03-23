@@ -1,11 +1,14 @@
 package handlers
 
 import (
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"log"
 	"messGo/database"
 	"messGo/models"
 	"net/http"
+	"strings"
 )
 
 func CreateStudent(w http.ResponseWriter, r *http.Request) {
@@ -23,11 +26,21 @@ func CreateStudent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	query := "INSERT INTO students (id, enroll_no, name, hostel, course_id, registered_session, mess_slip) VALUES (?,?,?,?,?,?,?)"
-	_, err = database.DB.Exec(query, student.ID, student.EnrollNo, student.Name, student.Hostel, student.CourseID, student.RegisteredSession, student.MessSlip)
+	query := "INSERT INTO students (enroll_no, name, hostel, course_id, registered_session, mess_slip) VALUES (?,?,?,?,?,?)"
+	_, err = database.DB.Exec(query, student.EnrollNo, student.Name, student.Hostel, student.CourseID, student.RegisteredSession, student.MessSlip)
 	if err != nil {
-		http.Error(w, "Failed to insert student", http.StatusInternalServerError)
-		log.Fatal(err)
+		if errors.Is(err, sql.ErrNoRows) {
+			http.Error(w, "No matcing records found ", http.StatusNotFound)
+			log.Fatal(err)
+			return
+		}
+		if strings.Contains(err.Error(), "Duplicate Entry") {
+			http.Error(w, "Error: Student with this ID already Exists", http.StatusConflict)
+			log.Println("Duplicate Entry error ", err)
+			return
+		}
+		log.Println("Database execution error ", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
