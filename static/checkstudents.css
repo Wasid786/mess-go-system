@@ -71,12 +71,12 @@
     font-weight: 600;
   }
   
-  .status.issued {
+  .status.active{
     background-color: #e6f7ee;
     color: #2ecc71;
   }
   
-  .status.not-issued {
+  .status.expire  {
     background-color: #feeaea;
     color: #e74c3c;
   }

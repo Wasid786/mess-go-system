@@ -33,9 +33,9 @@
             <td>{{.CourseID}}</td>
             <td>{{.RegisteredSession}}</td>
             <td>
-              <span class="status {{if .MessSlip}}issued{{else}}not-issued{{end}}">
-                {{if .MessSlip}}Issued{{else}}Not Issued{{end}}
-              </span>
+              <span class="status {{if .MessSlip}}active{{else}}expire{{end}}">
+    {{if .MessSlip}}Active{{else}}Not Active{{end}}
+</span>
             </td>
           </tr>
           {{end}}
