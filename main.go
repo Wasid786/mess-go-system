@@ -21,6 +21,7 @@ func main() {
 	http.HandleFunc("/", handlers.HomePage)
 	http.HandleFunc("/scanner", handlers.ScannerPage)
 	http.HandleFunc("/check", handlers.GetStudents)
+	http.HandleFunc("/add", handlers.AddStudentsPage)
 
 	// Post Route
 	http.HandleFunc("/scan", handlers.ScanQRCode)

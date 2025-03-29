@@ -13,6 +13,10 @@ func ScannerPage(w http.ResponseWriter, r *http.Request) {
 	RenderTemplate(w, "scanner.tmpl", nil)
 }
 
+func AddStudentsPage(w http.ResponseWriter, r *http.Request) {
+	RenderTemplate(w, "addstudent.tmpl", nil)
+}
+
 func RenderTemplate(w http.ResponseWriter, tmpl string, data map[string]interface{}) {
 	t, err := template.ParseFiles("templates/" + tmpl)
 	if err != nil {
