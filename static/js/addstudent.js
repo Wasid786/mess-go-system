@@ -1,14 +1,9 @@
-
-
-////////////////////// add student ////////
-
 document.addEventListener("DOMContentLoaded", function () {
     const form = document.querySelector("form");
 
     form.addEventListener("submit", async function (event) {
-        event.preventDefault(); // Prevent default form submission
+        event.preventDefault(); 
 
-        // Collect form data
         const formData = {
             name: document.getElementById("name").value,
             hostel: document.getElementById("hostel").value,
